@@ -1,0 +1,14 @@
+{
+  "name": "tourze/workerman-block-protocol",
+  "description": "Workerman积木协议",
+  "license": "MIT",
+  "require": {
+    "php": "^8.1",
+    "workerman/workerman": "^5.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tourze\\Workerman\\BlockProtocol\\": "src"
+    }
+  }
+}

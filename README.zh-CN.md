@@ -6,29 +6,29 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/tourze/workerman-block-protocol.svg?style=flat-square)](https://packagist.org/packages/tourze/workerman-block-protocol)
 [![License](https://img.shields.io/github/license/tourze/workerman-block-protocol.svg?style=flat-square)](https://github.com/tourze/workerman-block-protocol/blob/master/LICENSE)
 
-A modular protocol processing library for Workerman framework, using a "building blocks" approach to handle protocol data.
+基于 Workerman 框架的模块化协议处理库，采用"积木式"组合方式处理协议数据。
 
-## Features
+## 特性
 
-- Fully compatible with Workerman's protocol interface
-- Supports combination of multiple handlers
-- Highly extensible, easy to add custom handlers
-- Handles common data processing needs:
-  - ASCII characters
-  - Fixed-length data
-  - JSON data
-  - Base64 encoding/decoding
-  - Data compression
+- 完全兼容 Workerman 的协议接口
+- 支持多种处理器组合使用
+- 可扩展性强，便于添加自定义处理器
+- 支持常见数据处理需求：
+  - ASCII字符
+  - 定长数据
+  - JSON数据
+  - Base64编码/解码
+  - 数据压缩
 
-## Installation
+## 安装
 
 ```bash
 composer require tourze/workerman-block-protocol
 ```
 
-## Quick Start
+## 快速开始
 
-### Configuring Handler Chain
+### 配置处理器链
 
 ```php
 use Workerman\Worker;
@@ -37,98 +37,98 @@ use Tourze\Workerman\BlockProtocol\Handler\ASCII;
 use Tourze\Workerman\BlockProtocol\Handler\Length;
 use Tourze\Workerman\BlockProtocol\Handler\JSON;
 
-// Create a Worker instance
+// 创建一个Worker实例
 $worker = new Worker('BlockProtocol://0.0.0.0:8080');
 
-// Configure handler callback
+// 配置处理器回调
 BlockProtocol::$handlerCallback = function ($connection) {
     return [
-        // Process first byte as command type
+        // 处理第一个字节作为命令类型
         new ASCII($connection, [1, 2, 3]),
-        // Process the next 4 bytes as length header and corresponding data
+        // 处理后续4字节长度头和对应长度的数据
         new Length($connection, 'N', 4, 65536, 'body'),
-        // Parse message body as JSON
+        // 将消息体解析为JSON
         new JSON($connection, 65536, 'jsonData')
     ];
 };
 
-// Handle connection events
+// 处理连接事件
 $worker->onMessage = function ($connection, $data) {
-    // After processing, access the parsed results through the connection object
+    // 处理完成后，可以通过连接对象访问解析结果
     $command = BlockProtocol::getPart($connection, ASCII::class);
     $jsonData = $connection->jsonData;
-    
-    // Handle business logic...
+
+    // 处理业务逻辑...
 };
 
 Worker::runAll();
 ```
 
-## Available Handlers
+## 可用处理器
 
-The library provides several built-in handlers:
+该库提供了多种内置处理器：
 
 ### ASCII
 
-Handles a single byte of ASCII code.
+处理单个字节的ASCII码。
 
 ```php
-new ASCII($connection, [65, 66, 67]) // Only allows 'A', 'B', 'C'
+new ASCII($connection, [65, 66, 67]) // 只允许'A', 'B', 'C'
 ```
 
 ### UnpackData
 
-Processes fixed-length data with optional unpacking.
+处理固定长度的数据并可选择解包。
 
 ```php
-new UnpackData($connection, 4, 'N') // 4-byte network byte order integer
+new UnpackData($connection, 4, 'N') // 4字节网络字节序整数
 ```
 
 ### Length
 
-Processes messages with length prefix.
+处理带长度前缀的消息。
 
 ```php
-new Length($connection, 'N', 4, 65536, 'data') // 4-byte network byte order length prefix
+new Length($connection, 'N', 4, 65536, 'data') // 4字节网络字节序长度前缀
 ```
 
 ### JSON
 
-Handles JSON format data.
+处理JSON格式数据。
 
 ```php
-new JSON($connection, 65536, 'jsonData', true) // Maximum 65536 bytes, parse as associative array
+new JSON($connection, 65536, 'jsonData', true) // 最大65536字节，解析为关联数组
 ```
 
 ### Base64
 
-Handles Base64 encoding/decoding.
+处理Base64编码/解码。
 
 ```php
-new Base64($connection, false, true) // URL-safe Base64
+new Base64($connection, false, true) // URL安全的Base64
 ```
 
 ### Compression
 
-Handles data compression/decompression.
+处理数据压缩/解压。
 
 ```php
-new Compression($connection, Compression::ALGORITHM_GZIP, 6) // GZIP compression, level 6
+new Compression($connection, Compression::ALGORITHM_GZIP, 6) // GZIP压缩，级别6
 ```
 
 ### Response
 
-Sends a fixed response to the client.
+向客户端发送固定响应。
 
 ```php
-new Response($connection, '{"status":"ok"}', true) // Auto-send response
+new Response($connection, '{"status":"ok"}', true) // 自动发送响应
 ```
 
-## Advanced Usage
+## 高级用法
 
-### Creating Custom Handlers
+### 创建自定义处理器
 
-You can create custom handlers by extending the `Part` class:
+你可以通过继承 `Part` 类来创建自定义处理器：
 
 ```php
 use Tourze\Workerman\BlockProtocol\Handler\Part;
@@ -143,26 +143,26 @@ class MyCustomHandler extends Part
 
     public function input(string $buffer): int
     {
-        // Implement input processing logic
-        // Return values:
-        // -1: Part::FLAG_CONTINUE, indicates processed, continue to next handler
-        // 0: Need more data
-        // >0: Length of processed data
+        // 实现输入处理逻辑
+        // 返回值：
+        // -1: Part::FLAG_CONTINUE，表示已处理，继续下一个处理器
+        // 0: 需要更多数据
+        // >0: 已处理的数据长度
     }
 
     public function decode(string $buffer): string
     {
-        // Implement decoding logic
+        // 实现解码逻辑
     }
 
     public function encode(string $buffer): string
     {
-        // Implement encoding logic
+        // 实现编码逻辑
     }
 }
 ```
 
-### Using Compression and Encoding Together
+### 同时使用压缩和编码
 
 ```php
 use Tourze\Workerman\BlockProtocol\BlockProtocol;
@@ -170,7 +170,7 @@ use Tourze\Workerman\BlockProtocol\Handler\Length;
 use Tourze\Workerman\BlockProtocol\Handler\Compression;
 use Tourze\Workerman\BlockProtocol\Handler\Base64;
 
-// Configure handler chain with compression and Base64 encoding
+// 配置处理器链，支持数据压缩和Base64编码
 BlockProtocol::$handlerCallback = function ($connection) {
     return [
         new Length($connection),
@@ -180,10 +180,10 @@ BlockProtocol::$handlerCallback = function ($connection) {
 };
 ```
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎贡献！请随时提交 Pull Request。
 
-## License
+## 许可证
 
-The MIT License (MIT). Please see [License File](LICENSE) for more information.
+MIT 许可证。详情请查看 [License File](LICENSE) 文件。
