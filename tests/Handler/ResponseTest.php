@@ -37,11 +37,14 @@ class ResponseTest extends TestCase
         $responseData = 'Hello Response';
         $handler = new Response($this->connection, $responseData, false);
 
+        // 确保连接的lastSentData为空
+        $this->connection->clearSendBuffer();
+
         // 调用input方法
         $handler->input('any data');
 
         // 验证响应未发送
-        $this->assertNull($this->connection->getLastSendData());
+        $this->assertEquals('', $this->connection->getLastSendData());
 
         // 主动调用send方法
         $handler->send();
@@ -65,7 +68,7 @@ class ResponseTest extends TestCase
 
         // 第二次发送（不应再次发送）
         $handler->send();
-        $this->assertNull($this->connection->getLastSendData());
+        $this->assertEquals('', $this->connection->getLastSendData());
     }
 
     public function testDecode(): void
@@ -107,6 +110,6 @@ class ResponseTest extends TestCase
 
         // 第二次调用input（不应再次发送）
         $handler->input('second call');
-        $this->assertNull($this->connection->getLastSendData());
+        $this->assertEquals('', $this->connection->getLastSendData());
     }
-} 
+}

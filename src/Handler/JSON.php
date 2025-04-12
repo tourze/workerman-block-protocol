@@ -68,11 +68,11 @@ class JSON extends Part
         return $buffer;
     }
 
-    public function encode(string $buffer): string
+    public function encode(mixed $buffer): string
     {
         if (is_array($buffer) || is_object($buffer)) {
             return json_encode($buffer, JSON_UNESCAPED_UNICODE);
         }
-        return $buffer;
+        return is_string($buffer) ? $buffer : (string)$buffer;
     }
 }

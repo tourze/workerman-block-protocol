@@ -144,4 +144,4 @@ class CompressionTest extends TestCase
         // 解压无效数据应该返回原数据
         $this->assertEquals($invalidData, $handler->decode($invalidData));
     }
-} 
+}

@@ -8,14 +8,14 @@ abstract class Part
 {
     const FLAG_CONTINUE = -1;
 
-    private string|int|null $value = null;
+    private mixed $value = null;
 
-    public function getValue(): int|string|null
+    public function getValue(): mixed
     {
         return $this->value;
     }
 
-    public function setValue(int|string|null $value): void
+    public function setValue(mixed $value): void
     {
         $this->value = $value;
     }

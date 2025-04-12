@@ -154,4 +154,4 @@ class JSONTest extends TestCase
         $result = $handler->encode($data);
         $this->assertEquals($data, $result);
     }
-} 
+}
