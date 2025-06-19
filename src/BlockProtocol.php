@@ -19,9 +19,9 @@ class BlockProtocol implements ProtocolInterface
 
     /**
      * 处理器回调函数，用于初始化连接的处理器
-     * @var callable
+     * @var callable|null
      */
-    public static $handlerCallback;
+    public static $handlerCallback = null;
 
     /**
      * 静态初始化
@@ -42,7 +42,7 @@ class BlockProtocol implements ProtocolInterface
 
         if (!self::$partHandlers->offsetExists($connection)) {
             $callback = self::$handlerCallback;
-            if ($callback) {
+            if (null !== $callback) {
                 self::$partHandlers[$connection] = $callback($connection);
             } else {
                 self::$partHandlers[$connection] = [];

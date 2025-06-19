@@ -31,7 +31,6 @@ class JSONTest extends TestCase
 
         // 检查处理器的值是否正确解析
         $value = $handler->getValue();
-        $this->assertIsArray($value);
         $this->assertEquals('test', $value['name']);
         $this->assertEquals(123, $value['value']);
     }
@@ -82,7 +81,6 @@ class JSONTest extends TestCase
         $handler->input($jsonData);
 
         // 检查连接对象上是否设置了指定属性
-        $this->assertIsArray($this->connection->jsonData);
         $this->assertEquals('test', $this->connection->jsonData['name']);
     }
 

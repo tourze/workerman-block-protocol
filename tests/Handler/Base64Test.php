@@ -82,8 +82,11 @@ class Base64Test extends TestCase
         $invalidBase64 = 'AB*CD';
 
         // 使用input方法设置初始状态，避免直接使用decode
-        $handlerNonStrict->input($validBase64);
-        $handlerStrict->input($validBase64);
+        $result1 = $handlerNonStrict->input($validBase64);
+        $result2 = $handlerStrict->input($validBase64);
+        // 确保input方法被正确调用
+        $this->assertNotNull($result1);
+        $this->assertNotNull($result2);
 
         // 非严格模式下，应该可以解码非标准Base64
         $decodedNonStrict = $handlerNonStrict->decode($invalidBase64);
@@ -160,7 +163,7 @@ class Base64Test extends TestCase
         $convertedUrlSafe = str_replace(['-', '_'], ['+', '/'], $urlSafeEncoded);
         // 添加适当的填充
         $padding = strlen($convertedUrlSafe) % 4;
-        if ($padding) {
+        if ($padding !== 0) {
             $convertedUrlSafe .= str_repeat('=', 4 - $padding);
         }
 
