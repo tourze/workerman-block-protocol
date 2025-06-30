@@ -46,6 +46,7 @@ class JSON extends Part
             $this->setValue($data);
 
             if ($this->alias !== null) {
+                /** @phpstan-ignore-next-line */
                 $this->connection->{$this->alias} = $data;
             }
 

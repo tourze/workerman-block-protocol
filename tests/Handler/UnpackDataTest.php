@@ -60,14 +60,28 @@ class UnpackDataTest extends TestCase
         $this->assertEquals("test", $this->connection->testData);
     }
 
-    /**
-     * @test
-     * @group skip
-     */
     public function testInputWithAllowValues(): void
     {
-        // 由于MockConnection与AsyncTcpConnection的兼容性问题，此测试暂时跳过
-        $this->markTestSkipped('Skipped due to compatibility issues with AsyncTcpConnection');
+        // 创建一个只允许特定值的处理器
+        $handler = new UnpackData($this->connection, 1, null, null, ['A', 'B']);
+
+        // 测试允许的值
+        $result = $handler->input("A");
+        $this->assertEquals(1, $result);
+        $this->assertEquals("A", $handler->getValue());
+
+        // 重置处理器状态以测试另一个允许的值
+        $handler2 = new UnpackData($this->connection, 1, null, null, ['A', 'B']);
+        $result = $handler2->input("B");
+        $this->assertEquals(1, $result);
+        $this->assertEquals("B", $handler2->getValue());
+
+        // 测试不允许的值（应该关闭连接）
+        $handler3 = new UnpackData($this->connection, 1, null, null, ['A', 'B']);
+        $this->connection->reset(); // 确保连接状态干净
+        $result = $handler3->input("C");
+        $this->assertEquals(0, $result);
+        $this->assertTrue($this->connection->isClosed);
     }
 
     public function testInputInsufficientData(): void

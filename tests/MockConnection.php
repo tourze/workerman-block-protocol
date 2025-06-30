@@ -92,6 +92,7 @@ class MockConnection extends AsyncTcpConnection
         // 清除可能添加的动态属性
         foreach (get_object_vars($this) as $property => $value) {
             if (!in_array($property, ['isClosed', 'lastSentData', 'disableClose'])) {
+                /** @phpstan-ignore-next-line */
                 unset($this->$property);
             }
         }

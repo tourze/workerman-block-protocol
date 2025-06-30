@@ -45,6 +45,7 @@ class UnpackData extends Part
 
         $this->setValue($v);
         if ($this->alias !== null) {
+            /** @phpstan-ignore-next-line */
             $this->connection->{$this->alias} = $this->getValue();
         }
         return $dataLen;

@@ -3,6 +3,7 @@
 namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
+use Tourze\Workerman\BlockProtocol\Exception\InvalidProtocolArgumentException;
 use Tourze\Workerman\BlockProtocol\Handler\Compression;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
@@ -17,7 +18,7 @@ class CompressionTest extends TestCase
 
     public function testConstructWithInvalidAlgorithm(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidProtocolArgumentException::class);
         $this->expectExceptionMessage('不支持的压缩算法: invalid');
 
         new Compression($this->connection, 'invalid');
@@ -25,7 +26,7 @@ class CompressionTest extends TestCase
 
     public function testConstructWithInvalidLevel(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidProtocolArgumentException::class);
         $this->expectExceptionMessage('压缩级别必须在1-9之间');
 
         new Compression($this->connection, Compression::ALGORITHM_GZIP, 10);
