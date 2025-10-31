@@ -2,16 +2,23 @@
 
 namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\Workerman\BlockProtocol\Handler\Base64;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
-class Base64Test extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Base64::class)]
+final class Base64Test extends TestCase
 {
     private MockConnection $connection;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->connection = new MockConnection();
     }
 
@@ -146,8 +153,8 @@ class Base64Test extends TestCase
 
         // 验证标准编码包含+或/
         $this->assertTrue(
-            strpos($standardEncoded, '+') !== false ||
-            strpos($standardEncoded, '/') !== false
+            false !== strpos($standardEncoded, '+')
+            || false !== strpos($standardEncoded, '/')
         );
 
         // 使用URL安全base64编码
@@ -163,10 +170,45 @@ class Base64Test extends TestCase
         $convertedUrlSafe = str_replace(['-', '_'], ['+', '/'], $urlSafeEncoded);
         // 添加适当的填充
         $padding = strlen($convertedUrlSafe) % 4;
-        if ($padding !== 0) {
+        if (0 !== $padding) {
             $convertedUrlSafe .= str_repeat('=', 4 - $padding);
         }
 
         $this->assertEquals($originalData, $standardHandler->decode($convertedUrlSafe));
+    }
+
+    public function testDecode(): void
+    {
+        $handler = new Base64($this->connection);
+
+        // 测试标准base64解码
+        $encoded = base64_encode('Hello World');
+        $decoded = $handler->decode($encoded);
+        $this->assertEquals('Hello World', $decoded);
+
+        // 测试空字符串解码
+        $this->assertEquals('', $handler->decode(''));
+
+        // 测试无效数据解码（非严格模式）
+        $invalidData = 'invalid*base64';
+        $result = $handler->decode($invalidData);
+        $this->assertIsString($result);
+    }
+
+    public function testEncode(): void
+    {
+        $handler = new Base64($this->connection);
+
+        // 测试标准base64编码
+        $encoded = $handler->encode('Hello World');
+        $this->assertEquals(base64_encode('Hello World'), $encoded);
+
+        // 测试空字符串编码
+        $this->assertEquals('', $handler->encode(''));
+
+        // 测试二进制数据编码
+        $binaryData = "\x00\x01\x02\xFF";
+        $encoded = $handler->encode($binaryData);
+        $this->assertEquals(base64_encode($binaryData), $encoded);
     }
 }

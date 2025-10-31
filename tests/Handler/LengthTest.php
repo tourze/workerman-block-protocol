@@ -2,16 +2,23 @@
 
 namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\Workerman\BlockProtocol\Handler\Length;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
-class LengthTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Length::class)]
+final class LengthTest extends TestCase
 {
     private MockConnection $connection;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->connection = new MockConnection();
     }
 
@@ -21,7 +28,7 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection);
 
         // 创建测试数据：5字节的消息体，前缀4字节表示长度
-        $messageBody = "hello";
+        $messageBody = 'hello';
         $lengthPrefix = pack('N', 5); // 打包长度为5的4字节网络字节序整数
         $fullMessage = $lengthPrefix . $messageBody;
 
@@ -32,7 +39,7 @@ class LengthTest extends TestCase
         $this->assertEquals(9, $result);
 
         // 检查处理器的值是否正确设置为消息体
-        $this->assertEquals("hello", $handler->getValue());
+        $this->assertEquals('hello', $handler->getValue());
     }
 
     public function testInputPartialHeader(): void
@@ -59,7 +66,7 @@ class LengthTest extends TestCase
         $lengthPrefix = pack('N', 200);
 
         // 输入数据
-        $result = $handler->input($lengthPrefix . "some data");
+        $result = $handler->input($lengthPrefix . 'some data');
 
         // 应返回0，表示连接已关闭
         $this->assertEquals(0, $result);
@@ -77,7 +84,7 @@ class LengthTest extends TestCase
         $lengthPrefix = pack('N', 0);
 
         // 输入数据
-        $result = $handler->input($lengthPrefix . "some data");
+        $result = $handler->input($lengthPrefix . 'some data');
 
         // 应返回0，表示连接已关闭（长度不能为0）
         $this->assertEquals(0, $result);
@@ -93,7 +100,7 @@ class LengthTest extends TestCase
 
         // 创建测试数据：长度字段表示需要10字节数据，但实际只提供5字节
         $lengthPrefix = pack('N', 10);
-        $partialBody = "12345";
+        $partialBody = '12345';
 
         // 输入数据
         $result = $handler->input($lengthPrefix . $partialBody);
@@ -111,7 +118,7 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection, 'N', 4, 1048576, 'lengthData');
 
         // 创建测试数据
-        $messageBody = "hello";
+        $messageBody = 'hello';
         $lengthPrefix = pack('N', 5);
         $fullMessage = $lengthPrefix . $messageBody;
 
@@ -119,7 +126,7 @@ class LengthTest extends TestCase
         $handler->input($fullMessage);
 
         // 检查连接对象上是否设置了指定属性
-        $this->assertEquals("hello", $this->connection->lengthData);
+        $this->assertEquals('hello', $this->connection->lengthData);
     }
 
     public function testInputAfterProcessed(): void
@@ -127,7 +134,7 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection);
 
         // 创建测试数据
-        $messageBody = "hello";
+        $messageBody = 'hello';
         $lengthPrefix = pack('N', 5);
         $fullMessage = $lengthPrefix . $messageBody;
 
@@ -141,7 +148,7 @@ class LengthTest extends TestCase
         $this->assertEquals(-1, $result);
 
         // 值不应该改变
-        $this->assertEquals("hello", $handler->getValue());
+        $this->assertEquals('hello', $handler->getValue());
     }
 
     public function testDecode(): void
@@ -149,20 +156,20 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection);
 
         // 创建测试数据
-        $messageBody = "hello";
+        $messageBody = 'hello';
         $lengthPrefix = pack('N', 5);
-        $fullMessage = $lengthPrefix . $messageBody . "extra data";
+        $fullMessage = $lengthPrefix . $messageBody . 'extra data';
 
         // 处理数据
         $handler->input($fullMessage);
 
         // 第一次解码，应该去掉长度前缀和消息体
         $result = $handler->decode($fullMessage);
-        $this->assertEquals("extra data", $result);
+        $this->assertEquals('extra data', $result);
 
         // 第二次解码，不应该再处理
-        $result = $handler->decode("more data");
-        $this->assertEquals("more data", $result);
+        $result = $handler->decode('more data');
+        $this->assertEquals('more data', $result);
     }
 
     public function testEncode(): void
@@ -170,12 +177,12 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection);
 
         // 编码消息
-        $data = "hello world";
+        $data = 'hello world';
         $result = $handler->encode($data);
 
         // 应该生成包含长度前缀的数据
         $expectedLength = pack('N', 11); // 11是"hello world"的长度
-        $expected = $expectedLength . "hello world";
+        $expected = $expectedLength . 'hello world';
         $this->assertEquals($expected, $result);
     }
 
@@ -185,7 +192,7 @@ class LengthTest extends TestCase
         $handler = new Length($this->connection, 'v', 2);
 
         // 创建测试数据：3字节的消息体，前缀2字节表示长度
-        $messageBody = "abc";
+        $messageBody = 'abc';
         $lengthPrefix = pack('v', 3); // 打包长度为3的2字节小端序整数
         $fullMessage = $lengthPrefix . $messageBody;
 
@@ -196,6 +203,6 @@ class LengthTest extends TestCase
         $this->assertEquals(5, $result);
 
         // 检查处理器的值是否正确设置为消息体
-        $this->assertEquals("abc", $handler->getValue());
+        $this->assertEquals('abc', $handler->getValue());
     }
 }

@@ -9,22 +9,24 @@ use Workerman\Connection\ConnectionInterface;
  */
 class UnpackData extends Part
 {
+    /**
+     * @param array<mixed> $allowValues
+     */
     public function __construct(
         ConnectionInterface $connection,
         private readonly int $length,
         private readonly ?string $format = null,
         private readonly ?string $alias = null,
         private readonly array $allowValues = [],
-    )
-    {
+    ) {
         parent::__construct($connection);
     }
 
     public function input(string $buffer): int
     {
         // 处理过了，不管
-        if ($this->getValue() !== null) {
-            return static::FLAG_CONTINUE;
+        if (null !== $this->getValue()) {
+            return self::FLAG_CONTINUE;
         }
 
         $dataLen = strlen($buffer);
@@ -33,21 +35,28 @@ class UnpackData extends Part
         }
 
         $v = substr($buffer, 0, $this->length);
-        if ($this->format !== null) {
-            $v = unpack($this->format, $v);
-            $v = array_shift($v);
+        if (null !== $this->format) {
+            $unpacked = unpack($this->format, $v);
+            if (false === $unpacked) {
+                $this->connection->close();
+
+                return 0;
+            }
+            $v = array_shift($unpacked);
         }
 
-        if (!empty($this->allowValues) && !in_array($v, $this->allowValues, true)) {
+        if ([] !== $this->allowValues && !in_array($v, $this->allowValues, true)) {
             $this->connection->close();
+
             return 0;
         }
 
         $this->setValue($v);
-        if ($this->alias !== null) {
-            /** @phpstan-ignore-next-line */
+        if (null !== $this->alias) {
+            /* @phpstan-ignore-next-line */
             $this->connection->{$this->alias} = $this->getValue();
         }
+
         return $dataLen;
     }
 
@@ -59,6 +68,7 @@ class UnpackData extends Part
             $this->decoded = true;
             $buffer = substr($buffer, $this->length);
         }
+
         return $buffer;
     }
 

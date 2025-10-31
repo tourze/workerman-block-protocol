@@ -3,7 +3,6 @@
 namespace Tourze\Workerman\BlockProtocol;
 
 use Tourze\Workerman\BlockProtocol\Handler\Part;
-use WeakMap;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Protocols\ProtocolInterface;
 
@@ -13,15 +12,16 @@ use Workerman\Protocols\ProtocolInterface;
 class BlockProtocol implements ProtocolInterface
 {
     /**
-     * @var WeakMap<ConnectionInterface, Part[]>
+     * @var \WeakMap<ConnectionInterface, Part[]>
      */
-    private static WeakMap $partHandlers;
+    private static \WeakMap $partHandlers;
 
     /**
      * 处理器回调函数，用于初始化连接的处理器
+     *
      * @var callable|null
      */
-    public static $handlerCallback = null;
+    public static $handlerCallback;
 
     /**
      * 静态初始化
@@ -29,7 +29,7 @@ class BlockProtocol implements ProtocolInterface
     public static function init(): void
     {
         if (!isset(self::$partHandlers)) {
-            self::$partHandlers = new WeakMap();
+            self::$partHandlers = new \WeakMap();
         }
     }
 
@@ -54,7 +54,8 @@ class BlockProtocol implements ProtocolInterface
      * 获取指定类型的Part处理器的值
      *
      * @param ConnectionInterface $connection 连接对象
-     * @param string $part Part类名
+     * @param string              $part       Part类名
+     *
      * @return mixed Part处理器的值
      */
     public static function getPart(ConnectionInterface $connection, string $part): mixed
@@ -69,6 +70,7 @@ class BlockProtocol implements ProtocolInterface
                 return $handler->getValue();
             }
         }
+
         return null;
     }
 
@@ -78,9 +80,10 @@ class BlockProtocol implements ProtocolInterface
         foreach (self::$partHandlers[$connection] ?? [] as $part) {
             $v = $part->input($buffer);
             // Part::FLAG_CONTINUE 代表已经处理过了
-            if ($v === Part::FLAG_CONTINUE) {
+            if (Part::FLAG_CONTINUE === $v) {
                 continue;
             }
+
             return $v;
         }
 
@@ -93,6 +96,7 @@ class BlockProtocol implements ProtocolInterface
         foreach (self::$partHandlers[$connection] ?? [] as $part) {
             $buffer = $part->decode($buffer);
         }
+
         return $buffer;
     }
 
@@ -104,6 +108,7 @@ class BlockProtocol implements ProtocolInterface
             /** @var Part $part */
             $data = $part->encode($data);
         }
+
         return $data;
     }
 }

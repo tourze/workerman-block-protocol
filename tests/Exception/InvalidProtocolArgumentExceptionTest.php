@@ -1,18 +1,22 @@
 <?php
 
-namespace Tourze\Workerman\BlockProtocol\Tests\Unit\Exception;
+namespace Tourze\Workerman\BlockProtocol\Tests\Exception;
 
-use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 use Tourze\Workerman\BlockProtocol\Exception\InvalidProtocolArgumentException;
 
-class InvalidProtocolArgumentExceptionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(InvalidProtocolArgumentException::class)]
+final class InvalidProtocolArgumentExceptionTest extends AbstractExceptionTestCase
 {
     public function testIsInstanceOfInvalidArgumentException(): void
     {
         $exception = new InvalidProtocolArgumentException('Test message');
-        
-        $this->assertInstanceOf(InvalidArgumentException::class, $exception);
+
+        $this->assertInstanceOf(\InvalidArgumentException::class, $exception);
         $this->assertEquals('Test message', $exception->getMessage());
     }
 
@@ -20,7 +24,7 @@ class InvalidProtocolArgumentExceptionTest extends TestCase
     {
         $this->expectException(InvalidProtocolArgumentException::class);
         $this->expectExceptionMessage('Protocol argument error');
-        
+
         throw new InvalidProtocolArgumentException('Protocol argument error');
     }
 }

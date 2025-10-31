@@ -2,16 +2,23 @@
 
 namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\Workerman\BlockProtocol\Handler\JSON;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
-class JSONTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(JSON::class)]
+final class JSONTest extends TestCase
 {
     private MockConnection $connection;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->connection = new MockConnection();
     }
 
@@ -96,6 +103,7 @@ class JSONTest extends TestCase
         // 检查解析结果应为对象
         $value = $handler->getValue();
         $this->assertIsObject($value);
+        $this->assertObjectHasProperty('name', $value);
         $this->assertEquals('test', $value->name);
     }
 

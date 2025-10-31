@@ -2,8 +2,6 @@
 
 namespace Tourze\Workerman\BlockProtocol\Exception;
 
-use InvalidArgumentException;
-
-class InvalidProtocolArgumentException extends InvalidArgumentException
+class InvalidProtocolArgumentException extends \InvalidArgumentException
 {
 }

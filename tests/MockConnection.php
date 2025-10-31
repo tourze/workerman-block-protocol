@@ -25,19 +25,36 @@ class MockConnection extends AsyncTcpConnection
     public bool $disableClose = false;
 
     /**
+     * JSON数据属性 - 用于测试别名功能
+     */
+    public mixed $jsonData = null;
+
+    /**
+     * Length数据属性 - 用于测试别名功能
+     */
+    public mixed $lengthData = null;
+
+    /**
+     * 测试数据属性 - 用于测试别名功能
+     */
+    public mixed $testData = null;
+
+    /**
      * 重写构造函数，为测试提供默认参数
      */
     public function __construct()
     {
         parent::__construct('tcp://127.0.0.1:1234');
+
+        // 初始化 isSafe 属性以避免 Workerman 错误
+        $this->isSafe = true;
     }
 
     /**
      * 模拟关闭连接
      *
      * @param mixed $data 关闭前发送的数据
-     * @param bool $raw 是否发送原始数据
-     * @return void
+     * @param bool  $raw  是否发送原始数据
      */
     public function close(mixed $data = null, bool $raw = false): void
     {
@@ -50,19 +67,22 @@ class MockConnection extends AsyncTcpConnection
      * 模拟发送数据
      *
      * @param mixed $sendBuffer 要发送的数据
-     * @param bool $raw 是否发送原始数据
-     * @return bool|null
+     * @param bool  $raw        是否发送原始数据
      */
-    public function send(mixed $sendBuffer, bool $raw = false): bool|null
+    public function send(mixed $sendBuffer, bool $raw = false): ?bool
     {
-        $this->lastSentData = is_string($sendBuffer) ? $sendBuffer : json_encode($sendBuffer);
+        if (is_string($sendBuffer)) {
+            $this->lastSentData = $sendBuffer;
+        } else {
+            $encoded = json_encode($sendBuffer);
+            $this->lastSentData = false !== $encoded ? $encoded : '';
+        }
+
         return true;
     }
 
     /**
      * 获取最后发送的数据
-     *
-     * @return string
      */
     public function getLastSendData(): string
     {
@@ -71,8 +91,6 @@ class MockConnection extends AsyncTcpConnection
 
     /**
      * 清除发送缓冲区
-     *
-     * @return void
      */
     public function clearSendBuffer(): void
     {
@@ -81,20 +99,14 @@ class MockConnection extends AsyncTcpConnection
 
     /**
      * 重置连接状态
-     *
-     * @return void
      */
     public function reset(): void
     {
         $this->isClosed = false;
         $this->lastSentData = '';
         $this->disableClose = false;
-        // 清除可能添加的动态属性
-        foreach (get_object_vars($this) as $property => $value) {
-            if (!in_array($property, ['isClosed', 'lastSentData', 'disableClose'])) {
-                /** @phpstan-ignore-next-line */
-                unset($this->$property);
-            }
-        }
+        $this->jsonData = null;
+        $this->lengthData = null;
+        $this->testData = null;
     }
 }

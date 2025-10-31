@@ -2,17 +2,24 @@
 
 namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\Workerman\BlockProtocol\Exception\InvalidProtocolArgumentException;
 use Tourze\Workerman\BlockProtocol\Handler\Compression;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
-class CompressionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Compression::class)]
+final class CompressionTest extends TestCase
 {
     private MockConnection $connection;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->connection = new MockConnection();
     }
 
@@ -143,6 +150,25 @@ class CompressionTest extends TestCase
         $invalidData = 'This is not compressed data';
 
         // 解压无效数据应该返回原数据
+        $this->assertEquals($invalidData, $handler->decode($invalidData));
+    }
+
+    public function testDecode(): void
+    {
+        $handler = new Compression($this->connection, Compression::ALGORITHM_GZIP);
+
+        // 测试解压缩
+        $original = 'Hello World Test Data';
+        $compressed = gzencode($original);
+        $this->assertNotFalse($compressed);
+        $decompressed = $handler->decode($compressed);
+        $this->assertEquals($original, $decompressed);
+
+        // 测试空数据解压
+        $this->assertEquals('', $handler->decode(''));
+
+        // 测试无效数据解压（应返回原数据）
+        $invalidData = 'invalid compressed data';
         $this->assertEquals($invalidData, $handler->decode($invalidData));
     }
 }

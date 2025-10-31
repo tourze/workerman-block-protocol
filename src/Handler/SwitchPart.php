@@ -7,12 +7,14 @@ use Workerman\Connection\ConnectionInterface;
 
 class SwitchPart extends Part
 {
+    /**
+     * @param array<string, Part> $handlers
+     */
     public function __construct(
         ConnectionInterface $connection,
         private readonly string $dataKey,
         private readonly array $handlers,
-    )
-    {
+    ) {
         parent::__construct($connection);
     }
 
@@ -23,6 +25,7 @@ class SwitchPart extends Part
         if (!isset($this->getHandlers()[$data])) {
             throw new ProtocolRuntimeException('SwitchPart发现未知的数据类型');
         }
+
         return $this->getHandlers()[$data]->input($buffer);
     }
 
@@ -30,6 +33,7 @@ class SwitchPart extends Part
     {
         /** @phpstan-ignore-next-line */
         $data = $this->connection->{$this->dataKey};
+
         return $this->getHandlers()[$data]->decode($buffer);
     }
 
@@ -37,6 +41,7 @@ class SwitchPart extends Part
     {
         /** @phpstan-ignore-next-line */
         $data = $this->connection->{$this->dataKey};
+
         return $this->getHandlers()[$data]->encode($buffer);
     }
 

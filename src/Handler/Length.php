@@ -13,18 +13,18 @@ class Length extends Part
     private ?int $expectedLength = null;
 
     /**
-     * @param ConnectionInterface $connection 连接对象
-     * @param string $lengthFormat 长度字段的打包格式，如 'N'表示32位网络字节序整数
-     * @param int $headerSize 长度字段的字节数
-     * @param int $maxLength 允许的最大消息长度
-     * @param string|null $alias 解析后的数据存储在连接对象的属性名
+     * @param ConnectionInterface $connection   连接对象
+     * @param string              $lengthFormat 长度字段的打包格式，如 'N'表示32位网络字节序整数
+     * @param int                 $headerSize   长度字段的字节数
+     * @param int                 $maxLength    允许的最大消息长度
+     * @param string|null         $alias        解析后的数据存储在连接对象的属性名
      */
     public function __construct(
         ConnectionInterface $connection,
         private readonly string $lengthFormat = 'N',
         private readonly int $headerSize = 4,
         private readonly int $maxLength = 1048576,  // 默认最大1MB
-        private readonly ?string $alias = null
+        private readonly ?string $alias = null,
     ) {
         parent::__construct($connection);
     }
@@ -32,14 +32,14 @@ class Length extends Part
     public function input(string $buffer): int
     {
         // 已处理过数据
-        if ($this->getValue() !== null) {
-            return static::FLAG_CONTINUE;
+        if (null !== $this->getValue()) {
+            return self::FLAG_CONTINUE;
         }
 
         $bufferLen = strlen($buffer);
 
         // 如果还没解析长度字段
-        if ($this->expectedLength === null) {
+        if (null === $this->expectedLength) {
             // 数据不足以解析长度字段
             if ($bufferLen < $this->headerSize) {
                 return 0;
@@ -53,6 +53,7 @@ class Length extends Part
             // 验证长度是否合法
             if ($this->expectedLength <= 0 || $this->expectedLength > $this->maxLength) {
                 $this->connection->close();
+
                 return 0;
             }
         }
@@ -67,8 +68,8 @@ class Length extends Part
         $body = substr($buffer, $this->headerSize, $this->expectedLength);
         $this->setValue($body);
 
-        if ($this->alias !== null) {
-            /** @phpstan-ignore-next-line */
+        if (null !== $this->alias) {
+            /* @phpstan-ignore-next-line */
             $this->connection->{$this->alias} = $body;
         }
 
@@ -81,10 +82,11 @@ class Length extends Part
     {
         if (!$this->decoded) {
             $this->decoded = true;
-            if ($this->expectedLength !== null) {
+            if (null !== $this->expectedLength) {
                 return substr($buffer, $this->headerSize + $this->expectedLength);
             }
         }
+
         return $buffer;
     }
 

@@ -17,20 +17,17 @@ class Response extends Part
 
     /**
      * @param ConnectionInterface $connection 连接对象
-     * @param string $data 要发送的数据
-     * @param bool $autoSend 是否自动发送数据
+     * @param string              $data       要发送的数据
+     * @param bool                $autoSend   是否自动发送数据
      */
     public function __construct(
-        ConnectionInterface $connection, 
+        ConnectionInterface $connection,
         private readonly string $data,
-        private readonly bool $autoSend = true
+        private readonly bool $autoSend = true,
     ) {
         parent::__construct($connection);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function input(string $buffer): int
     {
         // 如果配置了自动发送且尚未发送
@@ -38,7 +35,8 @@ class Response extends Part
             $this->sent = true;
             $this->connection->send($this->data, true);
         }
-        return static::FLAG_CONTINUE;
+
+        return self::FLAG_CONTINUE;
     }
 
     /**

@@ -1,17 +1,24 @@
 <?php
 
-namespace Tourze\Workerman\BlockProtocol\Tests\Unit\Handler;
+namespace Tourze\Workerman\BlockProtocol\Tests\Handler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Tourze\Workerman\BlockProtocol\Handler\Part;
 use Tourze\Workerman\BlockProtocol\Tests\MockConnection;
 
-class PartTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(Part::class)]
+final class PartTest extends TestCase
 {
     private MockConnection $connection;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->connection = new MockConnection();
     }
 

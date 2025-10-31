@@ -6,7 +6,7 @@ use Workerman\Connection\ConnectionInterface;
 
 abstract class Part
 {
-    const FLAG_CONTINUE = -1;
+    public const FLAG_CONTINUE = -1;
 
     private mixed $value = null;
 
@@ -22,12 +22,10 @@ abstract class Part
 
     public function __construct(
         protected readonly ConnectionInterface $connection,
-    )
-    {
+    ) {
     }
 
     /**
-     * @param string $buffer
      * @return int -1:已处理, 0继续等待, 大于0是接收直接长度数据的意思
      */
     abstract public function input(string $buffer): int;
