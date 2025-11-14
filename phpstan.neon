@@ -1,0 +1,45 @@
+parameters:
+    level: 9
+    paths:
+        - src
+
+    # 配置autoload paths来找到Workerman类
+    scanDirectories:
+        - ../../vendor/workerman
+
+    # 确保正确识别根级vendor目录
+    scanFiles:
+        - ../../vendor/autoload.php
+
+    # 启用严格规则，但针对当前项目适度调整
+    checkMissingCallableSignature: false
+
+    # 忽略一些常见的Workerman相关问题
+    ignoreErrors:
+        # 忽略WeakMap相关的类型问题（PHP 8.0+特性）
+        - '#Static property .* does not accept WeakMap<object, mixed>#'
+        - '#Cannot access offset .* on \\WeakMap#'
+
+        # 允许mixed类型的一些使用场景
+        - '#has no return type specified#'
+        - '#Parameter .* expects string, mixed given#'
+        - '#should return string but returns mixed#'
+        - '#Cannot cast mixed to string#'
+
+        # Workerman的一些动态特性
+        - '#Access to an undefined property Workerman\\Connection\\ConnectionInterface::#'
+
+        # 忽略缺失的泛型和迭代器类型提示
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics
+
+    # 确保能够处理PHP 8.0+的新特性
+    phpVersion: 80100
+
+    # 开启所有检查
+    reportUnmatchedIgnoredErrors: false
+
+    # 内存限制
+    memoryLimitFile: .phpstan-memory-limit

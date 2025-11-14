@@ -69,6 +69,7 @@ class Length extends Part
         $this->setValue($body);
 
         if (null !== $this->alias) {
+            /* @phpstan-ignore-next-line */
             $this->connection->{$this->alias} = $body;
         }
 
