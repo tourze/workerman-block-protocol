@@ -46,7 +46,6 @@ final class SwitchPartTest extends TestCase
         $handlers = ['type1' => $mockHandler];
         $switchPart = new SwitchPart($this->connection, 'dataKey', $handlers);
 
-        /* @phpstan-ignore-next-line */
         $this->connection->dataKey = 'type1';
 
         $result = $switchPart->input('test buffer');
@@ -62,7 +61,6 @@ final class SwitchPartTest extends TestCase
         $handlers = ['type1' => $mockHandler];
         $switchPart = new SwitchPart($this->connection, 'dataKey', $handlers);
 
-        /* @phpstan-ignore-next-line */
         $this->connection->dataKey = 'unknown_type';
 
         $switchPart->input('test buffer');
@@ -80,7 +78,6 @@ final class SwitchPartTest extends TestCase
         $handlers = ['type1' => $mockHandler];
         $switchPart = new SwitchPart($this->connection, 'dataKey', $handlers);
 
-        /* @phpstan-ignore-next-line */
         $this->connection->dataKey = 'type1';
 
         $result = $switchPart->decode('test buffer');
@@ -99,7 +96,6 @@ final class SwitchPartTest extends TestCase
         $handlers = ['type1' => $mockHandler];
         $switchPart = new SwitchPart($this->connection, 'dataKey', $handlers);
 
-        /* @phpstan-ignore-next-line */
         $this->connection->dataKey = 'type1';
 
         $result = $switchPart->encode('test buffer');

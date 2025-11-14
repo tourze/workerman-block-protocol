@@ -20,7 +20,6 @@ class SwitchPart extends Part
 
     public function input(string $buffer): int
     {
-        /** @phpstan-ignore-next-line */
         $data = $this->connection->{$this->dataKey};
         if (!isset($this->getHandlers()[$data])) {
             throw new ProtocolRuntimeException('SwitchPart发现未知的数据类型');
@@ -31,7 +30,6 @@ class SwitchPart extends Part
 
     public function decode(string $buffer): string
     {
-        /** @phpstan-ignore-next-line */
         $data = $this->connection->{$this->dataKey};
 
         return $this->getHandlers()[$data]->decode($buffer);
@@ -39,7 +37,6 @@ class SwitchPart extends Part
 
     public function encode(string $buffer): string
     {
-        /** @phpstan-ignore-next-line */
         $data = $this->connection->{$this->dataKey};
 
         return $this->getHandlers()[$data]->encode($buffer);
